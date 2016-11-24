@@ -27,7 +27,6 @@ namespace Louw.PublicSuffix
                     continue;
                 }
 
-
                 //Ignore comments (and set Division)
                 if (line.StartsWith("//"))
                 {
@@ -51,6 +50,8 @@ namespace Louw.PublicSuffix
 
                     continue;
                 }
+
+                //TODO: Handle rules with white-space (Allowed by spec, but not encountered in wild yet)
 
                 var tldRule = new TldRule(line, division);
 

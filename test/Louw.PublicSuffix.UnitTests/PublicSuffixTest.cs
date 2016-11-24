@@ -16,9 +16,7 @@ namespace Louw.PublicSuffix.UnitTests
             string ruleFile = "effective_tld_names.dat";
             Assert.True(File.Exists(ruleFile));
 
-            var ruleProvider = new FileTldRuleProvider(ruleFile);
-            var rules = ruleProvider.BuildAsync().Result;
-            var domainParser = new DomainParser(rules);
+            var domainParser = new DomainParser(new FileTldRuleProvider(ruleFile));
 
             this._domainParser = domainParser;
         }

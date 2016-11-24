@@ -29,7 +29,7 @@ namespace Louw.PublicSuffix
             _ruleProvider = ruleProvider;
         }
 
-        public DomainName Get(string domain)
+        public DomainInfo Get(string domain)
         {
             if (string.IsNullOrEmpty(domain))
             {
@@ -38,9 +38,7 @@ namespace Louw.PublicSuffix
 
             if(_domainDataStructure==null)
             {
-                System.Diagnostics.Debug.Assert(_ruleProvider != null);
-                var rules = _ruleProvider.BuildAsync().Result;
-                AddRules(rules);
+                BuildRules(); //Use ITldRuleProvider
             }
 
             //We use Uri methods to normalize host (So Punycode is converted to UTF-8
@@ -50,7 +48,7 @@ namespace Louw.PublicSuffix
                 return null;
             }
             string normalizedDomain = uri.Host;
-            string normalizedHost = uri.GetComponents(UriComponents.NormalizedHost, UriFormat.UriEscaped); //Normalize punycode
+            string normalizedHost = uri.GetComponents(UriComponents.NormalizedHost, UriFormat.UriEscaped); //Normalize Punycode
 
             var parts = normalizedHost
                 .Split('.')
@@ -84,7 +82,7 @@ namespace Louw.PublicSuffix
                 return null;
             }
 
-            var domainName = new DomainName(normalizedDomain, winningRule);
+            var domainName = new DomainInfo(normalizedDomain, winningRule);
             return domainName;
         }
 
@@ -111,6 +109,13 @@ namespace Louw.PublicSuffix
             {
                 FindMatches(parts.Skip(1), foundStructure, matches);
             }
+        }
+
+        private void BuildRules()
+        {
+            System.Diagnostics.Debug.Assert(_ruleProvider != null);
+            var rules = _ruleProvider.BuildAsync().Result;
+            AddRules(rules);
         }
 
         private void AddRules(IEnumerable<TldRule> tldRules)
