@@ -116,7 +116,7 @@ namespace Louw.PublicSuffix
         private void AddRules(IEnumerable<TldRule> tldRules)
         {
             System.Diagnostics.Debug.Assert(_domainDataStructure == null); //We can only load rules once
-            _domainDataStructure = new DomainDataStructure("*");
+            _domainDataStructure = new DomainDataStructure("*", new TldRule("*"));
 
             foreach (var tldRule in tldRules)
             {
