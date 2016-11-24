@@ -11,6 +11,6 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>.NET Core Library to parse Public Suffix as specified by https://publicsuffix.org</description>
     <releaseNotes></releaseNotes>
-    <tags>publicsuffix.org public-suffix TLD DomainParser Registrable Domain DomainName</tags>
+    <tags>publicsuffix.org public-suffix TLD DomainParser Registrable Domain DomainName Hostname</tags>
   </metadata>
 </package>
