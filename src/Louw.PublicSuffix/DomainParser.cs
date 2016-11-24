@@ -10,6 +10,7 @@ namespace Louw.PublicSuffix
 {
     public class DomainParser
     {
+        private readonly object _lockObject = new object();
         private DomainDataStructure _domainDataStructure = null;
         private readonly ITldRuleProvider _ruleProvider; 
 
@@ -38,7 +39,14 @@ namespace Louw.PublicSuffix
 
             if(_domainDataStructure==null)
             {
-                BuildRules(); //Use ITldRuleProvider
+                //Gotta keep it thread safe (as this object is expected to be immutable)
+                lock (_lockObject)
+                {
+                    if (_domainDataStructure == null)
+                    {
+                        BuildRules(); //Use ITldRuleProvider to build rules
+                    }
+                }
             }
 
             //We use Uri methods to normalize host (So Punycode is converted to UTF-8

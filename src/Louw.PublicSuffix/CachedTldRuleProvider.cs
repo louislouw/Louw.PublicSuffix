@@ -14,6 +14,12 @@ namespace Louw.PublicSuffix
         private readonly string _fileUrl;
         private readonly TimeSpan _timeToLive;
 
+        /// <summary>
+        /// Constructs CachedTldRuleProvider class.
+        /// </summary>
+        /// <param name="fileName">Filename where data is cached. If empty, temporary filename generated.</param>
+        /// <param name="fileUrl">URL where Publix Suffix rules can be downloaded. (Default: https://publicsuffix.org/list/public_suffix_list.dat)</param>
+        /// <param name="timeToLive">TimeToLive - file data is refreshed from specified URL if file older than TTL. (Default: 1day)</param>
         public CachedTldRuleProvider(string fileName = null, string fileUrl = null, TimeSpan? timeToLive = null)
         {
             if (string.IsNullOrEmpty(fileName))
@@ -30,6 +36,10 @@ namespace Louw.PublicSuffix
             _timeToLive = timeToLive.Value;
         }
 
+        /// <summary>
+        /// Load data from URL and store it at File cache location (overwrites existing cached file)
+        /// </summary>
+        /// <returns>Returns Task that can be awaited</returns>
         public async Task Refresh()
         {
             var ruleData = await FetchFromWeb(_fileUrl);
@@ -37,12 +47,20 @@ namespace Louw.PublicSuffix
                 File.WriteAllText(_fileName, ruleData);
         }
 
-        public async Task<IEnumerable<TldRule>> BuildAsync()
+        /// <summary>
+        /// Check if cached file should be refreshed
+        /// </summary>
+        /// <returns>True if cache file does not exist, or if cached file is older than specified TimeToLive</returns>
+        public bool MustRefresh()
         {
             bool mustRefresh = !File.Exists(_fileName)
                 || (File.GetLastWriteTimeUtc(_fileName) < DateTime.UtcNow.Subtract(_timeToLive));
+            return mustRefresh;
+        }
 
-            if (mustRefresh)
+        public async Task<IEnumerable<TldRule>> BuildAsync()
+        {
+            if (MustRefresh())
             {
                 //TODO: Improvement - Continue even if refresh of file failed (if cached copy exists)
                 await Refresh();

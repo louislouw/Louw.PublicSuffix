@@ -105,5 +105,13 @@ namespace Louw.PublicSuffix.UnitTests
             Assert.Equal(TldRuleDivision.Private, tldRule.Division);
             Assert.Equal(5, tldRule.LabelCount);
         }
+
+        [Fact]
+        public void Example()
+        {
+            var domainParser = new DomainParser(new CachedTldRuleProvider());
+            var domainInfo = domainParser.Get("sub.test.co.uk");
+            Console.WriteLine(domainInfo.RegistrableDomain); //"test.co.uk"
+        }
     }
 }

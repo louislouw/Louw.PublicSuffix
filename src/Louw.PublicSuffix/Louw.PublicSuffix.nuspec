@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>Louw.PublicSuffix</id>
+    <version>1.0.0</version>
+    <authors>Louis Louw</authors>
+    <owners>louw</owners>
+    <licenseUrl>https://github.com/louislouw/Louw.PublicSuffix/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/louislouw/Louw.PublicSuffix</projectUrl>
+    <!-- <iconUrl></iconUrl> -->
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>.NET Core Library to parse Public Suffix as specified by https://publicsuffix.org</description>
+    <releaseNotes></releaseNotes>
+    <tags>publicsuffix.org public-suffix TLD DomainParser Registrable Domain DomainName</tags>
+  </metadata>
+</package>
