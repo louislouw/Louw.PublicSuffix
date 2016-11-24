@@ -2,6 +2,7 @@
 .Net Core Library to parse Public Suffix, i.e. the registrable public suffix. See https://publicsuffix.org/ for details.
 
 Based on original project: https://github.com/tinohager/Nager.PublicSuffix/
+
 Changes:
 * Ported to .NET Core Library.
 * Fixed library so it passes ALL the comprehensive tests.
