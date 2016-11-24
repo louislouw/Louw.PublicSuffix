@@ -1,4 +1,5 @@
-﻿using Xunit;
+﻿using System.Collections;
+using Xunit;
 
 namespace Louw.PublicSuffix.UnitTests
 {
@@ -7,8 +8,7 @@ namespace Louw.PublicSuffix.UnitTests
         [Fact]
         public void CheckDomainName1()
         {
-            var domainParser = new DomainParser();
-            domainParser.AddRule(new TldRule("com"));
+            var domainParser = new DomainParser(new TldRule[] { new TldRule("com") });
 
             var domainName = domainParser.Get("test.com");
             Assert.Equal("test", domainName.Domain);
@@ -20,9 +20,11 @@ namespace Louw.PublicSuffix.UnitTests
         [Fact]
         public void CheckDomainName2()
         {
-            var domainParser = new DomainParser();
-            domainParser.AddRule(new TldRule("uk"));
-            domainParser.AddRule(new TldRule("co.uk"));
+            var domainParser = new DomainParser(new TldRule[] 
+            {
+                new TldRule("uk"),
+                new TldRule("co.uk")
+            });
 
             var domainName = domainParser.Get("test.co.uk");
             Assert.Equal("test", domainName.Domain);
@@ -34,9 +36,11 @@ namespace Louw.PublicSuffix.UnitTests
         [Fact]
         public void CheckDomainName3()
         {
-            var domainParser = new DomainParser();
-            domainParser.AddRule(new TldRule("uk"));
-            domainParser.AddRule(new TldRule("co.uk"));
+            var domainParser = new DomainParser(new TldRule[]
+            {
+                new TldRule("uk"),
+                new TldRule("co.uk")
+            });
 
             var domainName = domainParser.Get("sub.test.co.uk");
             Assert.Equal("test", domainName.Domain);

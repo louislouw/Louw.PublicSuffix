@@ -48,12 +48,10 @@ namespace Louw.PublicSuffix
                 await Refresh();
             }
 
-            var parser = new DomainParser();
-            var lines = File.ReadLines(_fileName)
-                .Select(x => x.Trim())
-                .Where(x => !string.IsNullOrEmpty(x));
+            var parser = new TldRuleParser();
+            var ruleData = await FetchFromFile(_fileName);
 
-            var rules = parser.ParseRules(lines.ToArray());
+            var rules = parser.ParseRules(ruleData);
             return rules;
         }
 
@@ -65,6 +63,17 @@ namespace Louw.PublicSuffix
                 {
                     return await response.Content.ReadAsStringAsync();
                 }
+            }
+        }
+
+        private async Task<string> FetchFromFile(string fileName)
+        {
+            if (!File.Exists(_fileName))
+                throw new FileNotFoundException("Rule file does not exist");
+
+            using (var reader = File.OpenText(fileName))
+            {
+                return await reader.ReadToEndAsync();
             }
         }
     }
