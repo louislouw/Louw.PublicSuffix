@@ -29,8 +29,6 @@ install-package Louw.PublicSuffix
 
 #####More Examples
 
-```cs
-	var domainParser = new DomainParser(new CachedTldRuleProvider());
-    var domainInfo = domainParser.Get("sub.test.co.uk");
-    Console.WriteLine(domainInfo.RegistrableDomain); //"test.co.uk"
-```
+A lot more detailed examples can be found here:
+https://github.com/louislouw/Louw.PublicSuffix/blob/master/test/Louw.PublicSuffix.UnitTests/Examples.cs
+

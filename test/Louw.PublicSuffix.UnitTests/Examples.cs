@@ -42,7 +42,7 @@ namespace Louw.PublicSuffix.UnitTests
         public async Task CachedProviderExample()
         {
             //Cache Public Suffix data to file, refresh after TTL expires
-            //All params are optional
+            //All params are optional (in which cases it uses same values as below as defaults)
             var cachedFile = Path.Combine(Path.GetTempPath(), "public_suffix_list.dat");
             var plublicSuffixUrl = @"https://publicsuffix.org/list/public_suffix_list.dat";
             var timeToLive = TimeSpan.FromDays(1);
@@ -50,6 +50,24 @@ namespace Louw.PublicSuffix.UnitTests
             var provider = new CachedTldRuleProvider(cachedFile, plublicSuffixUrl, timeToLive);
             var rules = await provider.BuildAsync();
             Assert.NotEmpty(rules);
+            Assert.False(provider.MustRefresh());
+
+            //Lets manually force refresh of cache
+            File.Delete(cachedFile);
+            Assert.True(provider.MustRefresh());
+            await provider.Refresh();
+            Assert.False(provider.MustRefresh());
+        }
+
+        [Fact]
+        public void FileProviderExample()
+        {
+            string fileName = "effective_tld_names.dat"; //This file exists in Test project
+            //Important: project.json is set to copy this file on build
+
+            var domainParser = new DomainParser(new FileTldRuleProvider(fileName));
+            var domainInfo = domainParser.Get("sub.test.co.uk");
+            Assert.Equal("test.co.uk", domainInfo.RegistrableDomain);
         }
     }
 }
