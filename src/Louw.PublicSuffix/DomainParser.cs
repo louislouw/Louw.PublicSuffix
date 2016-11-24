@@ -10,117 +10,43 @@ namespace Louw.PublicSuffix
 {
     public class DomainParser
     {
-        private DomainDataStructure _domainDataStructure = new DomainDataStructure(".");
+        private readonly object _lockObject = new object();
+        private DomainDataStructure _domainDataStructure = null;
+        private readonly ITldRuleProvider _ruleProvider; 
 
-        public async Task<string> LoadDataAsync(string url = "https://publicsuffix.org/list/effective_tld_names.dat")
+        public DomainParser(IEnumerable<TldRule> rules)
         {
-            using (var httpClient = new HttpClient())
-            {
-                using (var response = await httpClient.GetAsync(url))
-                {
-                    return await response.Content.ReadAsStringAsync();
-                }
-            }
+            if (rules == null)
+                throw new ArgumentNullException("rules");
+            
+            this.AddRules(rules);
         }
 
-        public List<TldRule> ParseRules(string data)
+        public DomainParser(ITldRuleProvider ruleProvider)
         {
-            var lines = data.Split(new char[] { '\n', '\r' });
-            return this.ParseRules(lines);
+            if (ruleProvider == null)
+                throw new ArgumentNullException("ruleProvider");
+
+            _ruleProvider = ruleProvider;
         }
 
-        public List<TldRule> ParseRules(string[] lines)
-        {
-            var items = new List<TldRule>();
-            var division = TldRuleDivision.Unknown;
-
-            foreach (var line in lines)
-            {
-                //Ignore empty lines
-                if (string.IsNullOrEmpty(line))
-                {
-                    continue;
-                }
-
-
-                //Ignore comments (and set Division)
-                if (line.StartsWith("//"))
-                {
-                    //Detect Division
-                    if (line.StartsWith("// ===BEGIN ICANN DOMAINS==="))
-                    {
-                        division = TldRuleDivision.ICANN;
-                    }
-                    else if (line.StartsWith("// ===END ICANN DOMAINS==="))
-                    {
-                        division = TldRuleDivision.Unknown;
-                    }
-                    else if (line.StartsWith("// ===BEGIN PRIVATE DOMAINS==="))
-                    {
-                        division = TldRuleDivision.Private;
-                    }
-                    else if (line.StartsWith("// ===END PRIVATE DOMAINS==="))
-                    {
-                        division = TldRuleDivision.Unknown;
-                    }
-
-                    continue;
-                }
-
-                var tldRule = new TldRule(line.Trim(), division);
-
-                items.Add(tldRule);
-            }
-
-            return items;
-        }
-
-        public void AddRules(List<TldRule> tldRules)
-        {
-            foreach (var tldRule in tldRules)
-            {
-                this.AddRule(tldRule);
-            }
-        }
-
-        public void AddRule(TldRule tldRule)
-        {
-            var structure = this._domainDataStructure;
-            var domainPart = string.Empty;
-
-            var parts = tldRule.Name.Split('.').Reverse().ToList();
-            for (var i = 0; i < parts.Count; i++)
-            {
-                domainPart = parts[i];
-
-                if (parts.Count - 1 > i)
-                {
-                    //Check if domain exists
-                    if (!structure.Nested.ContainsKey(domainPart))
-                    {
-                        structure.Nested.Add(domainPart, new DomainDataStructure(domainPart));
-                    }
-
-                    structure = structure.Nested[domainPart];
-                    continue;
-                }
-
-                //Check if domain exists
-                if (structure.Nested.ContainsKey(domainPart))
-                {
-                    structure.Nested[domainPart].TldRule = tldRule;
-                    continue;
-                }
-
-                structure.Nested.Add(domainPart, new DomainDataStructure(domainPart, tldRule));
-            }
-        }
-
-        public DomainName Get(string domain)
+        public DomainInfo Get(string domain)
         {
             if (string.IsNullOrEmpty(domain))
             {
                 return null;
+            }
+
+            if(_domainDataStructure==null)
+            {
+                //Gotta keep it thread safe (as this object is expected to be immutable)
+                lock (_lockObject)
+                {
+                    if (_domainDataStructure == null)
+                    {
+                        BuildRules(); //Use ITldRuleProvider to build rules
+                    }
+                }
             }
 
             //We use Uri methods to normalize host (So Punycode is converted to UTF-8
@@ -130,7 +56,7 @@ namespace Louw.PublicSuffix
                 return null;
             }
             string normalizedDomain = uri.Host;
-            string normalizedHost = uri.GetComponents(UriComponents.NormalizedHost, UriFormat.UriEscaped); //Normalize punycode
+            string normalizedHost = uri.GetComponents(UriComponents.NormalizedHost, UriFormat.UriEscaped); //Normalize Punycode
 
             var parts = normalizedHost
                 .Split('.')
@@ -164,7 +90,7 @@ namespace Louw.PublicSuffix
                 return null;
             }
 
-            var domainName = new DomainName(normalizedDomain, winningRule);
+            var domainName = new DomainInfo(normalizedDomain, winningRule);
             return domainName;
         }
 
@@ -190,6 +116,57 @@ namespace Louw.PublicSuffix
             if (structure.Nested.TryGetValue("*", out foundStructure))
             {
                 FindMatches(parts.Skip(1), foundStructure, matches);
+            }
+        }
+
+        private void BuildRules()
+        {
+            System.Diagnostics.Debug.Assert(_ruleProvider != null);
+            var rules = _ruleProvider.BuildAsync().Result;
+            AddRules(rules);
+        }
+
+        private void AddRules(IEnumerable<TldRule> tldRules)
+        {
+            System.Diagnostics.Debug.Assert(_domainDataStructure == null); //We can only load rules once
+            _domainDataStructure = new DomainDataStructure("*", new TldRule("*"));
+
+            foreach (var tldRule in tldRules)
+            {
+                this.AddRule(tldRule);
+            }
+        }
+
+        private void AddRule(TldRule tldRule)
+        {
+            var structure = this._domainDataStructure;
+            var domainPart = string.Empty;
+
+            var parts = tldRule.Name.Split('.').Reverse().ToList();
+            for (var i = 0; i < parts.Count; i++)
+            {
+                domainPart = parts[i];
+
+                if (parts.Count - 1 > i)
+                {
+                    //Check if domain exists
+                    if (!structure.Nested.ContainsKey(domainPart))
+                    {
+                        structure.Nested.Add(domainPart, new DomainDataStructure(domainPart));
+                    }
+
+                    structure = structure.Nested[domainPart];
+                    continue;
+                }
+
+                //Check if domain exists
+                if (structure.Nested.ContainsKey(domainPart))
+                {
+                    structure.Nested[domainPart].TldRule = tldRule;
+                    continue;
+                }
+
+                structure.Nested.Add(domainPart, new DomainDataStructure(domainPart, tldRule));
             }
         }
     }

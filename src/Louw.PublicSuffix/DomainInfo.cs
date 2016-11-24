@@ -2,20 +2,16 @@
 
 namespace Louw.PublicSuffix
 {
-    public class DomainName
+    public class DomainInfo
     {
         public string Domain { get; private set; }
-        public string TLD { get; private set; }
+        public string Tld { get; private set; }
         public string SubDomain { get; private set; }
         public string RegistrableDomain { get; private set; }
         public string Hostname { get; private set; }
-        public TldRule TLDRule { get; private set; }
+        public TldRule TldRule { get; private set; }
 
-        public DomainName()
-        {
-        }
-
-        public DomainName(string domain, TldRule tldRule)
+        public DomainInfo(string domain, TldRule tldRule)
         {
             if (string.IsNullOrEmpty(domain))
             {
@@ -37,9 +33,9 @@ namespace Louw.PublicSuffix
                 return;
             }
 
-            this.TLDRule = tldRule;
+            this.TldRule = tldRule;
             this.Hostname = domain;
-            this.TLD = tld;
+            this.Tld = tld;
             this.RegistrableDomain = registrableDomain;
 
             this.Domain = domainParts.Skip(ruleParts.Count).FirstOrDefault();

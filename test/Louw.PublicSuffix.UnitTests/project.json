@@ -15,5 +15,9 @@
         }
       }
     }
+  },
+
+  "buildOptions": {
+    "copyToOutput": [ "effective_tld_names.dat" ]
   }
 }
