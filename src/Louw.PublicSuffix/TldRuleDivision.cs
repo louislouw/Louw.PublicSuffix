@@ -1,4 +1,4 @@
-﻿namespace Nager.PublicSuffix
+﻿namespace Louw.PublicSuffix
 {
     /// <summary>
     /// TLD Rule Division, defined by www.publicsuffix.org

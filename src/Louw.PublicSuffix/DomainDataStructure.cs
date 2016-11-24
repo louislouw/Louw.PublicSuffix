@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Nager.PublicSuffix
+namespace Louw.PublicSuffix
 {
     internal class DomainDataStructure
     {

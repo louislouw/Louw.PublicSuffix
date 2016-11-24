@@ -6,7 +6,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Nager.PublicSuffix
+namespace Louw.PublicSuffix
 {
     public class CachedTldRuleProvider : ITldRuleProvider
     {

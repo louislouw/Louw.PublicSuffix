@@ -1,7 +1,7 @@
 ﻿using System;
 using Xunit;
 
-namespace Nager.PublicSuffix.UnitTest
+namespace Louw.PublicSuffix.UnitTests
 {
     public class TldRuleTest
     {

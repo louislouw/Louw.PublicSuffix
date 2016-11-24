@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 
-namespace Nager.PublicSuffix
+namespace Louw.PublicSuffix
 {
     public class DomainName
     {
