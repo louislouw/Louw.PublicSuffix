@@ -16,6 +16,7 @@
     "tags": [ "publicsuffix.org", "public-suffix", "PublicSuffix", "TLD", "DomainParser", "Registrable Domain", "DomainName", "Hostname" ],
     "licenseUrl": "https://github.com/louislouw/Louw.PublicSuffix/blob/master/LICENSE",
     "projectUrl": "https://github.com/louislouw/Louw.PublicSuffix",
-    "repository": { "url": "https://github.com/louislouw/Louw.PublicSuffix" }
+    "repository": { "url": "https://github.com/louislouw/Louw.PublicSuffix" },
+    "releaseNotes": ".NET Core, Thread Safe, Rule Providers"
   }
 }

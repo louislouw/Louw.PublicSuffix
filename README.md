@@ -10,7 +10,8 @@ Changes:
 * Made classes immutable. Thus DomainParser can be used as Singleton and is Thread Safe.
 * Added CachedTldRuleProvider and FileTldRuleProvider.
 * Added functionality to know if Rule was a ICANN or Private domain rule.
-(Many of above changes were submitted back to original project)
+
+(Many of above changes were submitted back to original project.)
 
 #####nuget
 The package is available on nuget
