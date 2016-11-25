@@ -13,7 +13,7 @@
   "packOptions": {
     "owners": [ "louislouw" ],
     "summary": ".NET Core Library to parse Public Suffix as specified by https://publicsuffix.org",
-    "tags": [ "publicsuffix.org", "public-suffix", "PublicSuffix", "TLD", "DomainParser", "Registrable Domain", "DomainName", "Hostname" ],
+    "tags": [ "publicsuffix.org", "public-suffix", "PublicSuffix", "TLD", "DomainParser", "Registrable Domain", "DomainName", "Hostname", ".NET Core", "Core" ],
     "licenseUrl": "https://github.com/louislouw/Louw.PublicSuffix/blob/master/LICENSE",
     "projectUrl": "https://github.com/louislouw/Louw.PublicSuffix",
     "repository": { "url": "https://github.com/louislouw/Louw.PublicSuffix" },
