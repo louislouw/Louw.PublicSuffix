@@ -46,8 +46,9 @@ namespace Louw.PublicSuffix
             }
 
             //We use Uri methods to normalize host (So Punycode is converted to UTF-8
+            if (!domain.Contains("://")) domain = string.Concat("https://", domain);
             Uri uri;
-            if (!Uri.TryCreate(string.Concat("https://", domain), UriKind.RelativeOrAbsolute, out uri))
+            if (!Uri.TryCreate(domain, UriKind.RelativeOrAbsolute, out uri))
             {
                 return null;
             }
