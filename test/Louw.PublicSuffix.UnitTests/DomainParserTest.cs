@@ -54,5 +54,23 @@ namespace Louw.PublicSuffix.UnitTests
             Assert.Equal("sub", domainInfo.SubDomain);
             Assert.NotNull(domainInfo.TldRule);
         }
+
+        [Fact]
+        public void CheckDomainName4()
+        {
+            var domainParser = new DomainParser(new TldRule[]
+            {
+                new TldRule("uk"),
+                new TldRule("co.uk")
+            });
+
+            //Check if we can handle full URL
+            var domainInfo = domainParser.Get("http://sub.test.co.uk/path?query#fragement");
+            Assert.Equal("test", domainInfo.Domain);
+            Assert.Equal("co.uk", domainInfo.Tld);
+            Assert.Equal("test.co.uk", domainInfo.RegistrableDomain);
+            Assert.Equal("sub", domainInfo.SubDomain);
+            Assert.NotNull(domainInfo.TldRule);
+        }
     }
 }
