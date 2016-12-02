@@ -2480,7 +2480,7 @@
           "lib/netstandard1.1/xunit.runner.utility.dotnet.dll": {}
         }
       },
-      "Louw.PublicSuffix/1.0.0": {
+      "Louw.PublicSuffix/1.1.0": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
@@ -7475,7 +7475,7 @@
         "xunit.runner.utility.nuspec"
       ]
     },
-    "Louw.PublicSuffix/1.0.0": {
+    "Louw.PublicSuffix/1.1.0": {
       "type": "project",
       "path": "../../src/Louw.PublicSuffix/project.json",
       "msbuildProject": "../../src/Louw.PublicSuffix/Louw.PublicSuffix.xproj"
