@@ -73,7 +73,7 @@ namespace Louw.PublicSuffix
 
         private async Task<string> FetchFromWeb(string url)
         {
-            using (var httpClient = new HttpClient())
+            using (var httpClient = new System.Net.Http.HttpClient())
             {
                 using (var response = await httpClient.GetAsync(url))
                 {

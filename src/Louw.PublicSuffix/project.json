@@ -2,8 +2,12 @@
   "version": "1.1.0-*",
 
   "frameworks": {
+    "net452": {
+      "dependencies": {
+        "System.Net.Http": "4.0.0"
+      }
+    },
 
-    "net452": {},
     "netstandard1.6": {
       "dependencies": { "NETStandard.Library": "1.6.0" }
     }
@@ -11,7 +15,7 @@
 
   "packOptions": {
     "owners": [ "louislouw" ],
-    "summary": "Library to parse Public Suffix as specified by https://publicsuffix.org. (Framework 451+ and .NET Core compatible)",
+    "summary": "Library to parse Public Suffix as specified by https://publicsuffix.org. (Framework 452+ and .NET Core compatible)",
     "tags": [ "publicsuffix.org", "public-suffix", "PublicSuffix", "TLD", "DomainParser", "Registrable Domain", "DomainName", "Hostname", ".NET Core", "Core" ],
     "licenseUrl": "https://github.com/louislouw/Louw.PublicSuffix/blob/master/LICENSE",
     "projectUrl": "https://github.com/louislouw/Louw.PublicSuffix",
