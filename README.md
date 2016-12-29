@@ -24,9 +24,14 @@ install-package Louw.PublicSuffix
 
 #####Basic Example
 ```cs
-	var domainParser = new DomainParser(new CachedTldRuleProvider());
-    var domainInfo = domainParser.Get("sub.test.co.uk");
+	var domainParser = new DomainParser(new WebTldRuleProvider());
+    var domainInfo = await domainParser.ParseAsync("sub.test.co.uk");
     Assert.Equal("test.co.uk", domainInfo.RegistrableDomain);
+    Assert.Equal("sub.test.co.uk", domainInfo.Hostname);
+    Assert.Equal("test", domainInfo.Domain);
+    Assert.Equal("sub", domainInfo.SubDomain);
+    Assert.Equal("co.uk", domainInfo.Tld);
+    Assert.Equal(TldRuleDivision.ICANN, domainInfo.TldRule.Division);
 ```
 
 #####More Examples

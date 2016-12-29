@@ -6,7 +6,16 @@ using System.Threading.Tasks;
 
 namespace Louw.PublicSuffix
 {
-    public class CachedTldRuleProvider : ITldRuleProvider
+    [Obsolete("Use WebTldRuleProvider instead")]
+    public class CachedTldRuleProvider : WebTldRuleProvider
+    {
+        public CachedTldRuleProvider(string fileName = null, string fileUrl = null, TimeSpan? timeToLive = null) : base(fileName,fileUrl,timeToLive)
+        {
+
+        }
+    }
+
+    public class WebTldRuleProvider : ITldRuleProvider
     {
         private readonly string _fileName;
         private readonly string _fileUrl;
@@ -18,7 +27,7 @@ namespace Louw.PublicSuffix
         /// <param name="fileName">Filename where data is cached. If empty, temporary filename generated.</param>
         /// <param name="fileUrl">URL where Publix Suffix rules can be downloaded. (Default: https://publicsuffix.org/list/public_suffix_list.dat)</param>
         /// <param name="timeToLive">TimeToLive - file data is refreshed from specified URL if file older than TTL. (Default: 1day)</param>
-        public CachedTldRuleProvider(string fileName = null, string fileUrl = null, TimeSpan? timeToLive = null)
+        public WebTldRuleProvider(string fileName = null, string fileUrl = null, TimeSpan? timeToLive = null)
         {
             if (string.IsNullOrEmpty(fileName))
                 fileName = Path.Combine(Path.GetTempPath(), "public_suffix_list.dat");

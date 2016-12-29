@@ -9,32 +9,37 @@ namespace Louw.PublicSuffix.UnitTests
     public class Examples
     {
         [Fact]
-        public void BasicExample()
+        public async Task BasicExample()
         {
-            var domainParser = new DomainParser(new CachedTldRuleProvider());
-            var domainInfo = domainParser.Get("sub.test.co.uk");
+            var domainParser = new DomainParser(new WebTldRuleProvider());
+            var domainInfo = await domainParser.ParseAsync("sub.test.co.uk");
             Assert.Equal("test.co.uk", domainInfo.RegistrableDomain);
+            Assert.Equal("sub.test.co.uk", domainInfo.Hostname);
+            Assert.Equal("test", domainInfo.Domain);
+            Assert.Equal("sub", domainInfo.SubDomain);
+            Assert.Equal("co.uk", domainInfo.Tld);
+            Assert.Equal(TldRuleDivision.ICANN, domainInfo.TldRule.Division);
         }
 
         [Fact]
         public async Task RuleDivisionExample()
         {
-            var provider = new CachedTldRuleProvider();
+            var provider = new WebTldRuleProvider();
             var rules = await provider.BuildAsync();
 
             //ICANN and Private rules
             var domainParser = new DomainParser(rules);
-            var domainInfo = domainParser.Get("sub.test.co.uk");
+            var domainInfo = await domainParser.ParseAsync("sub.test.co.uk");
             Assert.Equal("test.co.uk", domainInfo.RegistrableDomain);
-            domainInfo = domainParser.Get("www.myblog.blogspot.co.uk");
+            domainInfo = await domainParser.ParseAsync("www.myblog.blogspot.co.uk");
             Assert.Equal("myblog.blogspot.co.uk", domainInfo.RegistrableDomain);
 
             //ICANN only rules
             var icannRules = rules.Where(x => x.Division == TldRuleDivision.ICANN);
             domainParser = new DomainParser(icannRules);
-            domainInfo = domainParser.Get("sub.test.co.uk");
+            domainInfo = await domainParser.ParseAsync("sub.test.co.uk");
             Assert.Equal("test.co.uk", domainInfo.RegistrableDomain);
-            domainInfo = domainParser.Get("www.myblog.blogspot.co.uk");
+            domainInfo = await domainParser.ParseAsync("www.myblog.blogspot.co.uk");
             Assert.Equal("blogspot.co.uk", domainInfo.RegistrableDomain); //Now TLD returned
         }
 
@@ -47,7 +52,7 @@ namespace Louw.PublicSuffix.UnitTests
             var plublicSuffixUrl = @"https://publicsuffix.org/list/public_suffix_list.dat";
             var timeToLive = TimeSpan.FromDays(1);
 
-            var provider = new CachedTldRuleProvider(cachedFile, plublicSuffixUrl, timeToLive);
+            var provider = new WebTldRuleProvider(cachedFile, plublicSuffixUrl, timeToLive);
             var rules = await provider.BuildAsync();
             Assert.NotEmpty(rules);
             Assert.False(provider.MustRefresh());
@@ -60,13 +65,13 @@ namespace Louw.PublicSuffix.UnitTests
         }
 
         [Fact]
-        public void FileProviderExample()
+        public async Task FileProviderExample()
         {
             string fileName = "effective_tld_names.dat"; //This file exists in Test project
             //Important: project.json is set to copy this file on build
 
             var domainParser = new DomainParser(new FileTldRuleProvider(fileName));
-            var domainInfo = domainParser.Get("sub.test.co.uk");
+            var domainInfo = await domainParser.ParseAsync("sub.test.co.uk");
             Assert.Equal("test.co.uk", domainInfo.RegistrableDomain);
         }
     }

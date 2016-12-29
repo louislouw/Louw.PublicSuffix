@@ -1,5 +1,5 @@
 ﻿{
-  "version": "1.1.2-*",
+  "version": "1.2.0-*",
 
   "frameworks": {
     "net452": {
@@ -20,6 +20,6 @@
     "licenseUrl": "https://github.com/louislouw/Louw.PublicSuffix/blob/master/LICENSE",
     "projectUrl": "https://github.com/louislouw/Louw.PublicSuffix",
     "repository": { "url": "https://github.com/louislouw/Louw.PublicSuffix" },
-    "releaseNotes": ".NET Core, Thread Safe, Rule Providers"
+    "releaseNotes": ".NET Core, Thread Safe, Rule Providers, Async"
   }
 }
