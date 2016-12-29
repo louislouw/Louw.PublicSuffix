@@ -45,7 +45,7 @@ namespace Louw.PublicSuffix
                 return null;
             }
 
-            var isRulesLoaded = await _rulesLoaded.Value;
+            var isRulesLoaded = await _rulesLoaded.Value.ConfigureAwait(false);
             if (!isRulesLoaded)
                 throw new InvalidOperationException("Rules not loaded yet");
 
