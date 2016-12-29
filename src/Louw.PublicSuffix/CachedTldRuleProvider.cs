@@ -40,7 +40,7 @@ namespace Louw.PublicSuffix
         /// <returns>Returns Task that can be awaited</returns>
         public async Task Refresh()
         {
-            var ruleData = await FetchFromWeb(_fileUrl);
+            var ruleData = await FetchFromWeb(_fileUrl).ConfigureAwait(false);
             if (!string.IsNullOrEmpty(ruleData))
                 File.WriteAllText(_fileName, ruleData);
         }
@@ -61,11 +61,11 @@ namespace Louw.PublicSuffix
             if (MustRefresh())
             {
                 //TODO: Improvement - Continue even if refresh of file failed (if cached copy exists)
-                await Refresh();
+                await Refresh().ConfigureAwait(false);
             }
 
             var parser = new TldRuleParser();
-            var ruleData = await FetchFromFile(_fileName);
+            var ruleData = await FetchFromFile(_fileName).ConfigureAwait(false);
 
             var rules = parser.ParseRules(ruleData);
             return rules;
@@ -77,7 +77,7 @@ namespace Louw.PublicSuffix
             {
                 using (var response = await httpClient.GetAsync(url))
                 {
-                    return await response.Content.ReadAsStringAsync();
+                    return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 }
             }
         }
@@ -89,7 +89,7 @@ namespace Louw.PublicSuffix
 
             using (var reader = File.OpenText(fileName))
             {
-                return await reader.ReadToEndAsync();
+                return await reader.ReadToEndAsync().ConfigureAwait(false);
             }
         }
     }
