@@ -1,5 +1,6 @@
 ﻿using Xunit;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Louw.PublicSuffix.UnitTests
 {
@@ -21,7 +22,7 @@ namespace Louw.PublicSuffix.UnitTests
             this._domainParser = domainParser;
         }
 
-        private void CheckPublicSuffix(string domain, string expected)
+        private async Task CheckPublicSuffix(string domain, string expected)
         {
             Assert.NotNull(this._domainParser);
 
@@ -30,7 +31,7 @@ namespace Louw.PublicSuffix.UnitTests
                 domain = domain.ToLowerInvariant();
             }
 
-            var domainData = this._domainParser.Get(domain);
+            var domainData = await this._domainParser.ParseAsync(domain);
             if (domainData == null)
             {
                 Assert.Null(expected);
@@ -42,132 +43,132 @@ namespace Louw.PublicSuffix.UnitTests
         }
 
         [Fact]
-        public void ComprehensiveCheck()
+        public async Task ComprehensiveCheck()
         {
             // null input.
-            this.CheckPublicSuffix(null, null);
+            await this.CheckPublicSuffix(null, null);
 
             // Mixed case.
-            this.CheckPublicSuffix("COM", null);
-            this.CheckPublicSuffix("example.COM", "example.com");
-            this.CheckPublicSuffix("WwW.example.COM", "example.com");
+            await this.CheckPublicSuffix("COM", null);
+            await this.CheckPublicSuffix("example.COM", "example.com");
+            await this.CheckPublicSuffix("WwW.example.COM", "example.com");
 
             // Leading dot.
-            this.CheckPublicSuffix(".com", null);
-            this.CheckPublicSuffix(".example", null);
-            this.CheckPublicSuffix(".example.com", null);
-            this.CheckPublicSuffix(".example.example", null);
+            await this.CheckPublicSuffix(".com", null);
+            await this.CheckPublicSuffix(".example", null);
+            await this.CheckPublicSuffix(".example.com", null);
+            await this.CheckPublicSuffix(".example.example", null);
 
             // Unlisted TLD.
-            this.CheckPublicSuffix("example", null);
-            this.CheckPublicSuffix("example.example", "example.example");
-            this.CheckPublicSuffix("b.example.example", "example.example");
-            this.CheckPublicSuffix("a.b.example.example", "example.example");
+            await this.CheckPublicSuffix("example", null);
+            await this.CheckPublicSuffix("example.example", "example.example");
+            await this.CheckPublicSuffix("b.example.example", "example.example");
+            await this.CheckPublicSuffix("a.b.example.example", "example.example");
 
             // Listed, but non-Internet, TLD.
-            //this.CheckPublicSuffix("local", null);
-            //this.CheckPublicSuffix("example.local", null);
-            //this.CheckPublicSuffix("b.example.local", null);
-            //this.CheckPublicSuffix("a.b.example.local", null);
+            //await this.CheckPublicSuffix("local", null);
+            //await this.CheckPublicSuffix("example.local", null);
+            //await this.CheckPublicSuffix("b.example.local", null);
+            //await this.CheckPublicSuffix("a.b.example.local", null);
 
             // TLD with only 1 rule.
-            this.CheckPublicSuffix("biz", null);
-            this.CheckPublicSuffix("domain.biz", "domain.biz");
-            this.CheckPublicSuffix("b.domain.biz", "domain.biz");
-            this.CheckPublicSuffix("a.b.domain.biz", "domain.biz");
+            await this.CheckPublicSuffix("biz", null);
+            await this.CheckPublicSuffix("domain.biz", "domain.biz");
+            await this.CheckPublicSuffix("b.domain.biz", "domain.biz");
+            await this.CheckPublicSuffix("a.b.domain.biz", "domain.biz");
 
             // TLD with some 2-level rules.
-            this.CheckPublicSuffix("com", null);
-            this.CheckPublicSuffix("example.com", "example.com");
-            this.CheckPublicSuffix("b.example.com", "example.com");
-            this.CheckPublicSuffix("a.b.example.com", "example.com");
-            this.CheckPublicSuffix("uk.com", null);
-            this.CheckPublicSuffix("example.uk.com", "example.uk.com");
-            this.CheckPublicSuffix("b.example.uk.com", "example.uk.com");
-            this.CheckPublicSuffix("a.b.example.uk.com", "example.uk.com");
-            this.CheckPublicSuffix("test.ac", "test.ac");
+            await this.CheckPublicSuffix("com", null);
+            await this.CheckPublicSuffix("example.com", "example.com");
+            await this.CheckPublicSuffix("b.example.com", "example.com");
+            await this.CheckPublicSuffix("a.b.example.com", "example.com");
+            await this.CheckPublicSuffix("uk.com", null);
+            await this.CheckPublicSuffix("example.uk.com", "example.uk.com");
+            await this.CheckPublicSuffix("b.example.uk.com", "example.uk.com");
+            await this.CheckPublicSuffix("a.b.example.uk.com", "example.uk.com");
+            await this.CheckPublicSuffix("test.ac", "test.ac");
 
             // TLD with only 1 (wildcard) rule.
-            this.CheckPublicSuffix("mm", null);
-            this.CheckPublicSuffix("c.mm", null);
-            this.CheckPublicSuffix("b.c.mm", "b.c.mm");
-            this.CheckPublicSuffix("a.b.c.mm", "b.c.mm");
+            await this.CheckPublicSuffix("mm", null);
+            await this.CheckPublicSuffix("c.mm", null);
+            await this.CheckPublicSuffix("b.c.mm", "b.c.mm");
+            await this.CheckPublicSuffix("a.b.c.mm", "b.c.mm");
 
             // More complex TLD.
-            this.CheckPublicSuffix("jp", null);
-            this.CheckPublicSuffix("test.jp", "test.jp");
-            this.CheckPublicSuffix("www.test.jp", "test.jp");
-            this.CheckPublicSuffix("ac.jp", null);
-            this.CheckPublicSuffix("test.ac.jp", "test.ac.jp");
-            this.CheckPublicSuffix("www.test.ac.jp", "test.ac.jp");
-            this.CheckPublicSuffix("kyoto.jp", null);
-            this.CheckPublicSuffix("test.kyoto.jp", "test.kyoto.jp");
-            this.CheckPublicSuffix("ide.kyoto.jp", null);
-            this.CheckPublicSuffix("b.ide.kyoto.jp", "b.ide.kyoto.jp");
-            this.CheckPublicSuffix("a.b.ide.kyoto.jp", "b.ide.kyoto.jp");
-            this.CheckPublicSuffix("c.kobe.jp", null);
-            this.CheckPublicSuffix("b.c.kobe.jp", "b.c.kobe.jp");
-            this.CheckPublicSuffix("a.b.c.kobe.jp", "b.c.kobe.jp");
-            this.CheckPublicSuffix("city.kobe.jp", "city.kobe.jp");
-            this.CheckPublicSuffix("www.city.kobe.jp", "city.kobe.jp");
+            await this.CheckPublicSuffix("jp", null);
+            await this.CheckPublicSuffix("test.jp", "test.jp");
+            await this.CheckPublicSuffix("www.test.jp", "test.jp");
+            await this.CheckPublicSuffix("ac.jp", null);
+            await this.CheckPublicSuffix("test.ac.jp", "test.ac.jp");
+            await this.CheckPublicSuffix("www.test.ac.jp", "test.ac.jp");
+            await this.CheckPublicSuffix("kyoto.jp", null);
+            await this.CheckPublicSuffix("test.kyoto.jp", "test.kyoto.jp");
+            await this.CheckPublicSuffix("ide.kyoto.jp", null);
+            await this.CheckPublicSuffix("b.ide.kyoto.jp", "b.ide.kyoto.jp");
+            await this.CheckPublicSuffix("a.b.ide.kyoto.jp", "b.ide.kyoto.jp");
+            await this.CheckPublicSuffix("c.kobe.jp", null);
+            await this.CheckPublicSuffix("b.c.kobe.jp", "b.c.kobe.jp");
+            await this.CheckPublicSuffix("a.b.c.kobe.jp", "b.c.kobe.jp");
+            await this.CheckPublicSuffix("city.kobe.jp", "city.kobe.jp");
+            await this.CheckPublicSuffix("www.city.kobe.jp", "city.kobe.jp");
 
             // TLD with a wildcard rule and exceptions.
-            this.CheckPublicSuffix("ck", null);
-            this.CheckPublicSuffix("test.ck", null);
-            this.CheckPublicSuffix("b.test.ck", "b.test.ck");
-            this.CheckPublicSuffix("a.b.test.ck", "b.test.ck");
-            this.CheckPublicSuffix("www.ck", "www.ck");
-            this.CheckPublicSuffix("www.www.ck", "www.ck");
+            await this.CheckPublicSuffix("ck", null);
+            await this.CheckPublicSuffix("test.ck", null);
+            await this.CheckPublicSuffix("b.test.ck", "b.test.ck");
+            await this.CheckPublicSuffix("a.b.test.ck", "b.test.ck");
+            await this.CheckPublicSuffix("www.ck", "www.ck");
+            await this.CheckPublicSuffix("www.www.ck", "www.ck");
 
             // US K12.
-            this.CheckPublicSuffix("us", null);
-            this.CheckPublicSuffix("test.us", "test.us");
-            this.CheckPublicSuffix("www.test.us", "test.us");
-            this.CheckPublicSuffix("ak.us", null);
-            this.CheckPublicSuffix("test.ak.us", "test.ak.us");
-            this.CheckPublicSuffix("www.test.ak.us", "test.ak.us");
-            this.CheckPublicSuffix("k12.ak.us", null);
-            this.CheckPublicSuffix("test.k12.ak.us", "test.k12.ak.us");
-            this.CheckPublicSuffix("www.test.k12.ak.us", "test.k12.ak.us");
+            await this.CheckPublicSuffix("us", null);
+            await this.CheckPublicSuffix("test.us", "test.us");
+            await this.CheckPublicSuffix("www.test.us", "test.us");
+            await this.CheckPublicSuffix("ak.us", null);
+            await this.CheckPublicSuffix("test.ak.us", "test.ak.us");
+            await this.CheckPublicSuffix("www.test.ak.us", "test.ak.us");
+            await this.CheckPublicSuffix("k12.ak.us", null);
+            await this.CheckPublicSuffix("test.k12.ak.us", "test.k12.ak.us");
+            await this.CheckPublicSuffix("www.test.k12.ak.us", "test.k12.ak.us");
         }
 
         [Fact]
-        public void IdnDomainCheck()
+        public async Task IdnDomainCheck()
         {
             // IDN labels.
-            this.CheckPublicSuffix("食狮.com.cn", "食狮.com.cn");
-            this.CheckPublicSuffix("食狮.公司.cn", "食狮.公司.cn");
-            this.CheckPublicSuffix("www.食狮.公司.cn", "食狮.公司.cn");
-            this.CheckPublicSuffix("shishi.公司.cn", "shishi.公司.cn");
-            this.CheckPublicSuffix("公司.cn", null);
-            this.CheckPublicSuffix("食狮.中国", "食狮.中国");
-            this.CheckPublicSuffix("www.食狮.中国", "食狮.中国");
-            this.CheckPublicSuffix("shishi.中国", "shishi.中国");
-            this.CheckPublicSuffix("中国", null);
+            await this.CheckPublicSuffix("食狮.com.cn", "食狮.com.cn");
+            await this.CheckPublicSuffix("食狮.公司.cn", "食狮.公司.cn");
+            await this.CheckPublicSuffix("www.食狮.公司.cn", "食狮.公司.cn");
+            await this.CheckPublicSuffix("shishi.公司.cn", "shishi.公司.cn");
+            await this.CheckPublicSuffix("公司.cn", null);
+            await this.CheckPublicSuffix("食狮.中国", "食狮.中国");
+            await this.CheckPublicSuffix("www.食狮.中国", "食狮.中国");
+            await this.CheckPublicSuffix("shishi.中国", "shishi.中国");
+            await this.CheckPublicSuffix("中国", null);
 
             // Same as above, but punycoded.
-            this.CheckPublicSuffix("xn--85x722f.com.cn", "xn--85x722f.com.cn");
-            this.CheckPublicSuffix("xn--85x722f.xn--55qx5d.cn", "xn--85x722f.xn--55qx5d.cn");
-            this.CheckPublicSuffix("www.xn--85x722f.xn--55qx5d.cn", "xn--85x722f.xn--55qx5d.cn");
-            this.CheckPublicSuffix("shishi.xn--55qx5d.cn", "shishi.xn--55qx5d.cn");
-            this.CheckPublicSuffix("xn--55qx5d.cn", null);
-            this.CheckPublicSuffix("xn--85x722f.xn--fiqs8s", "xn--85x722f.xn--fiqs8s");
-            this.CheckPublicSuffix("www.xn--85x722f.xn--fiqs8s", "xn--85x722f.xn--fiqs8s");
-            this.CheckPublicSuffix("shishi.xn--fiqs8s", "shishi.xn--fiqs8s");
-            this.CheckPublicSuffix("xn--fiqs8s", null);
+            await this.CheckPublicSuffix("xn--85x722f.com.cn", "xn--85x722f.com.cn");
+            await this.CheckPublicSuffix("xn--85x722f.xn--55qx5d.cn", "xn--85x722f.xn--55qx5d.cn");
+            await this.CheckPublicSuffix("www.xn--85x722f.xn--55qx5d.cn", "xn--85x722f.xn--55qx5d.cn");
+            await this.CheckPublicSuffix("shishi.xn--55qx5d.cn", "shishi.xn--55qx5d.cn");
+            await this.CheckPublicSuffix("xn--55qx5d.cn", null);
+            await this.CheckPublicSuffix("xn--85x722f.xn--fiqs8s", "xn--85x722f.xn--fiqs8s");
+            await this.CheckPublicSuffix("www.xn--85x722f.xn--fiqs8s", "xn--85x722f.xn--fiqs8s");
+            await this.CheckPublicSuffix("shishi.xn--fiqs8s", "shishi.xn--fiqs8s");
+            await this.CheckPublicSuffix("xn--fiqs8s", null);
         }
 
         [Fact]
-        public void TreeSplitCheck()
+        public async Task TreeSplitCheck()
         {
             //Extra tests (Added to avoid regression bugs)
-            this.CheckPublicSuffix("co.ke", null);
-            this.CheckPublicSuffix("blogspot.co.ke", null);
-            this.CheckPublicSuffix("web.co.ke", "web.co.ke");
-            this.CheckPublicSuffix("a.b.web.co.ke", "web.co.ke");
-            this.CheckPublicSuffix("blogspot.co.ke", null);
-            this.CheckPublicSuffix("web.blogspot.co.ke", "web.blogspot.co.ke");
-            this.CheckPublicSuffix("a.b.web.blogspot.co.ke", "web.blogspot.co.ke");
+            await this.CheckPublicSuffix("co.ke", null);
+            await this.CheckPublicSuffix("blogspot.co.ke", null);
+            await this.CheckPublicSuffix("web.co.ke", "web.co.ke");
+            await this.CheckPublicSuffix("a.b.web.co.ke", "web.co.ke");
+            await this.CheckPublicSuffix("blogspot.co.ke", null);
+            await this.CheckPublicSuffix("web.blogspot.co.ke", "web.blogspot.co.ke");
+            await this.CheckPublicSuffix("a.b.web.blogspot.co.ke", "web.blogspot.co.ke");
         }
     }
 }

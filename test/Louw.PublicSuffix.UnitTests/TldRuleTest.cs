@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Louw.PublicSuffix.UnitTests
@@ -104,14 +105,6 @@ namespace Louw.PublicSuffix.UnitTests
             Assert.Equal("a.b.web.*.foo", tldRule.Name);
             Assert.Equal(TldRuleDivision.Private, tldRule.Division);
             Assert.Equal(5, tldRule.LabelCount);
-        }
-
-        [Fact]
-        public void Example()
-        {
-            var domainParser = new DomainParser(new CachedTldRuleProvider());
-            var domainInfo = domainParser.Get("sub.test.co.uk");
-            Console.WriteLine(domainInfo.RegistrableDomain); //"test.co.uk"
         }
     }
 }

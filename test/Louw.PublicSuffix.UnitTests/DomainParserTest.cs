@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Louw.PublicSuffix.UnitTests
@@ -6,14 +7,14 @@ namespace Louw.PublicSuffix.UnitTests
     public class DomainParserTest
     {
         [Fact]
-        public void CheckDomainName1()
+        public async Task CheckDomainName1()
         {
             var domainParser = new DomainParser(new TldRule[] 
             {
                 new TldRule("com")
             });
 
-            var domainInfo = domainParser.Get("test.com");
+            var domainInfo = await domainParser.ParseAsync("test.com");
             Assert.Equal("test", domainInfo.Domain);
             Assert.Equal("com", domainInfo.Tld);
             Assert.Equal("test.com", domainInfo.RegistrableDomain);
@@ -22,7 +23,7 @@ namespace Louw.PublicSuffix.UnitTests
         }
 
         [Fact]
-        public void CheckDomainName2()
+        public async Task CheckDomainName2()
         {
             var domainParser = new DomainParser(new TldRule[] 
             {
@@ -30,7 +31,7 @@ namespace Louw.PublicSuffix.UnitTests
                 new TldRule("co.uk")
             });
 
-            var domainInfo = domainParser.Get("test.co.uk");
+            var domainInfo = await domainParser.ParseAsync("test.co.uk");
             Assert.Equal("test", domainInfo.Domain);
             Assert.Equal("co.uk", domainInfo.Tld);
             Assert.Equal("test.co.uk", domainInfo.RegistrableDomain);
@@ -39,7 +40,7 @@ namespace Louw.PublicSuffix.UnitTests
         }
 
         [Fact]
-        public void CheckDomainName3()
+        public async Task CheckDomainName3()
         {
             var domainParser = new DomainParser(new TldRule[]
             {
@@ -47,7 +48,7 @@ namespace Louw.PublicSuffix.UnitTests
                 new TldRule("co.uk")
             });
 
-            var domainInfo = domainParser.Get("sub.test.co.uk");
+            var domainInfo = await domainParser.ParseAsync("sub.test.co.uk");
             Assert.Equal("test", domainInfo.Domain);
             Assert.Equal("co.uk", domainInfo.Tld);
             Assert.Equal("test.co.uk", domainInfo.RegistrableDomain);
@@ -56,7 +57,7 @@ namespace Louw.PublicSuffix.UnitTests
         }
 
         [Fact]
-        public void CheckDomainName4()
+        public async Task CheckDomainName4()
         {
             var domainParser = new DomainParser(new TldRule[]
             {
@@ -65,7 +66,7 @@ namespace Louw.PublicSuffix.UnitTests
             });
 
             //Check if we can handle full URL
-            var domainInfo = domainParser.Get("http://sub.test.co.uk/path?query#fragement");
+            var domainInfo = await domainParser.ParseAsync("http://sub.test.co.uk/path?query#fragement");
             Assert.Equal("test", domainInfo.Domain);
             Assert.Equal("co.uk", domainInfo.Tld);
             Assert.Equal("test.co.uk", domainInfo.RegistrableDomain);

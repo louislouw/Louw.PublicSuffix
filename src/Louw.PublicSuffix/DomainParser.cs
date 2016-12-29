@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Louw.PublicSuffix
 {
@@ -8,7 +9,9 @@ namespace Louw.PublicSuffix
     {
         private readonly object _lockObject = new object();
         private DomainDataStructure _domainDataStructure = null;
-        private readonly ITldRuleProvider _ruleProvider; 
+
+        private readonly ITldRuleProvider _ruleProvider;
+        private readonly AsyncLazy<bool> _rulesLoaded;
 
         public DomainParser(IEnumerable<TldRule> rules)
         {
@@ -16,6 +19,7 @@ namespace Louw.PublicSuffix
                 throw new ArgumentNullException("rules");
             
             this.AddRules(rules);
+            _rulesLoaded = new AsyncLazy<bool>(() => true);
         }
 
         public DomainParser(ITldRuleProvider ruleProvider)
@@ -24,26 +28,26 @@ namespace Louw.PublicSuffix
                 throw new ArgumentNullException("ruleProvider");
 
             _ruleProvider = ruleProvider;
+
+            //Using AsyncLazy is thread safe way to initialize rules
+            _rulesLoaded = new AsyncLazy<bool>(async delegate 
+            {
+                var rules = await _ruleProvider.BuildAsync().ConfigureAwait(false);
+                AddRules(rules);
+                return true;
+            });
         }
 
-        public DomainInfo Get(string domain)
+        public async Task<DomainInfo> ParseAsync(string domain)
         {
             if (string.IsNullOrEmpty(domain))
             {
                 return null;
             }
 
-            if(_domainDataStructure==null)
-            {
-                //Gotta keep it thread safe (as this object is expected to be immutable)
-                lock (_lockObject)
-                {
-                    if (_domainDataStructure == null)
-                    {
-                        BuildRules(); //Use ITldRuleProvider to build rules
-                    }
-                }
-            }
+            var isRulesLoaded = await _rulesLoaded.Value;
+            if (!isRulesLoaded)
+                throw new InvalidOperationException("Rules not loaded yet");
 
             //We use Uri methods to normalize host (So Punycode is converted to UTF-8
             if (!domain.Contains("://")) domain = string.Concat("https://", domain);
@@ -70,7 +74,7 @@ namespace Louw.PublicSuffix
             FindMatches(parts, structure, matches);
 
             //Sort so exceptions are first, then by biggest label count (with wildcards at bottom) 
-            var sortedMatches = matches.OrderByDescending(x => x.Type == TldRuleType.WildcardException?1:0)
+            var sortedMatches = matches.OrderByDescending(x => x.Type == TldRuleType.WildcardException ? 1 : 0)
                 .ThenByDescending(x => x.LabelCount)
                 .ThenByDescending(x => x.Name);
 
@@ -89,6 +93,12 @@ namespace Louw.PublicSuffix
 
             var domainName = new DomainInfo(normalizedDomain, winningRule);
             return domainName;
+        }
+
+        [Obsolete("Use ParseAsync instead")]
+        public DomainInfo Get(string domain)
+        {
+            return ParseAsync(domain).Result;
         }
 
         private void FindMatches(IEnumerable<string> parts, DomainDataStructure structure, List<TldRule> matches)
@@ -114,13 +124,6 @@ namespace Louw.PublicSuffix
             {
                 FindMatches(parts.Skip(1), foundStructure, matches);
             }
-        }
-
-        private void BuildRules()
-        {
-            System.Diagnostics.Debug.Assert(_ruleProvider != null);
-            var rules = _ruleProvider.BuildAsync().Result;
-            AddRules(rules);
         }
 
         private void AddRules(IEnumerable<TldRule> tldRules)

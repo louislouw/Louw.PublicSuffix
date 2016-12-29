@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Louw.PublicSuffix.UnitTests
 {
-    public class CachedTldRuleProviderTest
+    public class WebTldRuleProviderTest
     {
         [Fact]
         public async Task CheckCachedRules()
@@ -17,7 +17,7 @@ namespace Louw.PublicSuffix.UnitTests
                 File.Delete(tmpFile);
             }
 
-            ITldRuleProvider provider = new CachedTldRuleProvider(fileName: tmpFile);
+            ITldRuleProvider provider = new WebTldRuleProvider(fileName: tmpFile);
             var rules = await provider.BuildAsync();
             Assert.True(File.Exists(tmpFile));
             Assert.NotNull(rules);
