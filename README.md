@@ -8,8 +8,9 @@ Changes:
 * Fixed library so it passes ALL the comprehensive tests.
 * Refactored classes to split functionality into smaller focused classes.
 * Made classes immutable. Thus DomainParser can be used as Singleton and is Thread Safe.
-* Added CachedTldRuleProvider and FileTldRuleProvider.
+* Added WebTldRuleProvider and FileTldRuleProvider.
 * Added functionality to know if Rule was a ICANN or Private domain rule.
+* Use async programming model
 
 (Many of above changes were submitted back to original project.)
 
